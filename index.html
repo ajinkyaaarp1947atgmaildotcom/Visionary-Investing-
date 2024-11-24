@@ -1,0 +1,51 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Price Prediction</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+</head>
+<body>
+    <div>
+        <h1>Stock Price Prediction</h1>
+        <label for="stockSymbol">Stock Symbol:</label>
+        <input type="text" id="stockSymbol" value="AAPL">
+        <label for="forecastDays">Forecast Days:</label>
+        <input type="number" id="forecastDays" value="30">
+        <button onclick="getPrediction()">Get Prediction</button>
+    </div>
+
+    <div>
+        <canvas id="priceChart"></canvas>
+    </div>
+
+    <script>
+        async function getPrediction() {
+            const symbol = document.getElementById('stockSymbol').value;
+            const forecastDays = document.getElementById('forecastDays').value;
+
+            // Fetch prediction from the backend
+            const response = await fetch(`http://127.0.0.1:5000/predict?symbol=${symbol}&forecast_days=${forecastDays}`);
+            const data = await response.json();
+
+            // Use Chart.js to plot the prediction on a graph
+            const predictedPrices = data.predicted_prices;
+            const labels = Array.from({ length: predictedPrices.length }, (_, i) => i + 1);
+            
+            const ctx = document.getElementById('priceChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Predicted Stock Price',
+                        data: predictedPrices,
+                        borderColor: '#00f',
+                        fill: false
+                    }]
+                }
+            });
+        }
+    </script>
+</body>
+</html>
